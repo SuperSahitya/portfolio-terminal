@@ -1,0 +1,282 @@
+@import 'tailwindcss';
+@import '@fontsource/ibm-plex-mono/latin-400.css';
+@import '@fontsource/ibm-plex-mono/latin-500.css';
+@import '@fontsource/vt323/latin-400.css';
+
+/* ── Phosphor palettes ─────────────────────────────────────────────────────
+   One hue per display, like the real thing. Everything else is derived. */
+:root {
+  /* Default: ice, the cool white of a late monochrome tube. */
+  --p: #c3e4ff;
+  --bg: #04080c;
+  --p-dim: color-mix(in oklab, var(--p) 58%, var(--bg));
+  --p-faint: color-mix(in oklab, var(--p) 20%, var(--bg));
+  --glow: color-mix(in srgb, var(--p) 38%, transparent);
+}
+:root[data-phosphor='green'] {
+  --p: #3dfc8a;
+  --bg: #040b07;
+}
+:root[data-phosphor='amber'] {
+  --p: #ffb347;
+  --bg: #0b0703;
+}
+
+@theme inline {
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  --font-display: 'VT323', 'IBM Plex Mono', ui-monospace, monospace;
+  --color-screen: var(--bg);
+  --color-phosphor: var(--p);
+  --color-dim: var(--p-dim);
+  --color-faint: var(--p-faint);
+}
+
+/* ── Base ──────────────────────────────────────────────────────────────── */
+html {
+  background: var(--bg);
+  color-scheme: dark;
+  scroll-behavior: smooth;
+  scroll-padding-top: 1.5rem;
+  scrollbar-color: var(--p-faint) var(--bg);
+  scrollbar-width: thin;
+}
+
+body {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--p);
+  text-shadow: 0 0 0.55em var(--glow);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+@media (min-width: 640px) {
+  body {
+    font-size: 16px;
+  }
+}
+
+::selection {
+  background: var(--p);
+  color: var(--bg);
+  text-shadow: none;
+}
+
+/* ── Links: inverse video, as on a text terminal ───────────────────────────
+   With a mouse, the custom cursor *is* the highlight (see Cursor.tsx), so the
+   CSS hover only applies when that cursor is off (touch, no JS, etc). */
+.lnk {
+  display: inline-block;
+  white-space: nowrap;
+  padding: 0 0.5ch;
+  margin: 0 -0.5ch;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.lnk:focus-visible,
+html:not(.has-cursor) .lnk:active {
+  background: var(--p);
+  color: var(--bg);
+  text-shadow: none;
+}
+@media (hover: hover) {
+  html:not(.has-cursor) .lnk:hover {
+    background: var(--p);
+    color: var(--bg);
+    text-shadow: none;
+  }
+}
+
+/* ── Caret ─────────────────────────────────────────────────────────────── */
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+.caret {
+  display: inline-block;
+  width: 0.6em;
+  height: 1.15em;
+  margin-left: 0.15em;
+  vertical-align: text-bottom;
+  background: currentColor;
+  box-shadow: 0 0 0.55em var(--glow);
+  animation: blink 1.06s steps(1) infinite;
+}
+
+/* ── CRT glass ─────────────────────────────────────────────────────────── */
+.crt {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  overflow: hidden;
+}
+.crt-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(to bottom, transparent 0 2px, rgb(0 0 0 / 0.17) 2px 3px);
+}
+.crt-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 58%, rgb(0 0 0 / 0.42) 100%);
+}
+.crt-beam {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 22vh;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--p) 4%, transparent) 60%,
+    transparent
+  );
+  animation: beam 9s linear infinite;
+}
+@keyframes beam {
+  from {
+    transform: translateY(-25vh);
+  }
+  to {
+    transform: translateY(105vh);
+  }
+}
+
+/* Tube warming up: a bright line that opens into the picture. */
+@keyframes power-on {
+  0% {
+    transform: scale(0.5, 0.004);
+    filter: brightness(5);
+  }
+  40% {
+    transform: scale(1, 0.004);
+    filter: brightness(5);
+  }
+  100% {
+    transform: none;
+    filter: none;
+  }
+}
+.power-on {
+  transform-origin: 50% 45vh;
+  animation: power-on 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+
+/* ── Section reveal ────────────────────────────────────────────────────── */
+@keyframes type-in {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 -1em 0 0);
+  }
+}
+[data-reveal] .type-in {
+  clip-path: inset(0 100% 0 0);
+}
+[data-reveal='in'] .type-in {
+  clip-path: none;
+  animation-name: type-in;
+  animation-fill-mode: backwards;
+}
+[data-reveal] .reveal-body {
+  opacity: 0;
+  transform: translateY(6px);
+}
+[data-reveal='in'] .reveal-body {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.45s ease 0.2s,
+    transform 0.45s ease 0.2s;
+}
+
+/* ── Boot screen ───────────────────────────────────────────────────────── */
+.leader {
+  flex: 1;
+  min-width: 1.5rem;
+  margin: 0 0.6ch;
+  border-bottom: 1px dotted var(--p-faint);
+  transform: translateY(-0.4em);
+}
+.boot-bar {
+  height: 0.85em;
+  background-image: repeating-linear-gradient(90deg, var(--p) 0 7px, transparent 7px 10px);
+  box-shadow: 0 0 0.6em var(--glow);
+}
+
+/* ── Cursor ────────────────────────────────────────────────────────────── */
+html.has-cursor,
+html.has-cursor * {
+  cursor: none !important;
+}
+.cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 70;
+  width: 10px;
+  height: 20px;
+  pointer-events: none;
+  mix-blend-mode: difference;
+  opacity: 0;
+  will-change: transform;
+  transition:
+    width 0.12s cubic-bezier(0.2, 0.7, 0.2, 1),
+    height 0.12s cubic-bezier(0.2, 0.7, 0.2, 1),
+    opacity 0.15s;
+}
+.cursor.is-eased {
+  transition:
+    transform 0.12s cubic-bezier(0.2, 0.7, 0.2, 1),
+    width 0.12s cubic-bezier(0.2, 0.7, 0.2, 1),
+    height 0.12s cubic-bezier(0.2, 0.7, 0.2, 1),
+    opacity 0.15s;
+}
+.cursor.is-visible {
+  opacity: 1;
+}
+.cursor > i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--p);
+  transition: transform 0.08s;
+}
+.cursor.is-idle > i {
+  animation: blink 1.06s steps(1) infinite;
+}
+.cursor.is-down > i {
+  transform: scale(0.78);
+}
+.cursor.is-locked.is-down > i {
+  transform: scale(0.97, 0.9);
+}
+
+/* ── Command line ──────────────────────────────────────────────────────── */
+.cmd-input {
+  caret-color: var(--p);
+  caret-shape: block;
+  text-shadow: inherit;
+}
+.cmd-input::placeholder {
+  color: var(--p-dim);
+  opacity: 1;
+}
+
+/* ── Motion preferences ────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+  .crt-beam {
+    display: none;
+  }
+}
