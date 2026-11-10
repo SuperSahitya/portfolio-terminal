@@ -1,6 +1,6 @@
 // All the words on the site live here. Edit this file to change the content.
 
-const RESUME_FILE = 'SahityaKumarChoubey_SDE_v1_2026.pdf'
+const RESUME_FILE = 'SahityaKumarChoubey_SDE.pdf'
 
 export const profile = {
   name: 'Sahitya Kumar Choubey',
@@ -17,7 +17,7 @@ export const profile = {
   resume: {
     file: RESUME_FILE,
     href: RESUME_FILE, // relative: the PDF sits in public/ next to index.html
-    size: '93 KB',
+    size: '92 KB',
   },
 }
 
